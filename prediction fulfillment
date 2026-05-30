@@ -1,0 +1,29 @@
+SELECT
+      date,
+      revenue,
+      predict,
+      (sum(revenue) over(order by date))/(sum(predict) over(order by date))* 100 as percent
+FROM
+(SELECT
+      date,
+      sum(revenue) as revenue,
+      sum(predict) as predict
+from
+(SELECT
+      s.date,
+      sum(price) as revenue,
+      0 as predict
+FROM `data-analytics-mate.DA.product` p
+join `data-analytics-mate.DA.order` o
+on p.item_id = o.item_id
+join `data-analytics-mate.DA.session` s
+on o.ga_session_id = s.ga_session_id
+group by 1
+union all
+SELECT
+      date,
+      0 as revenue,
+      sum(predict) as predict
+FROM `data-analytics-mate.DA.revenue_predict`
+group by 1) as new_tab
+group by 1) union_new
